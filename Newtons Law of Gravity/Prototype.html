@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NEWTONs LAW OF MOTION</title>
+</head>
+
+<body>
+    <canvas id="canvas" style="width:1000px; height: 700px; border: 1px solid">
+        Your Browser Does Not Support Canvas!
+    </canvas>
+
+    <script>
+        var canvas = document.getElementById("canvas");
+
+        canvas.width = canvas.scrollWidth;
+        canvas.height = canvas.scrollHeight;
+
+        var ctx = canvas.getContext("2d");
+
+        ctx.font = "20px Impact";
+        ctx.fillText("Score : 0", 10, 50);
+        ctx.fillText("Health : ❤❤❤", 10, 90);
+
+        ctx.fillRect(10, 680, 980, 10);
+
+        ctx.fillStyle = "brown";
+        ctx.fillRect(150, 530, 50, 150);
+
+        ctx.fillStyle = "red";
+
+        ctx.beginPath();
+        ctx.arc(200, 200, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(300, 400, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fill();
+
+    </script>
+
+</body>
+
+</html>

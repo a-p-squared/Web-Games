@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Newton's Law</title>
+</head>
+
+<body>
+    <canvas id="canvas" style="width:1000px; height: 700px; border: 1px solid"></canvas>
+    <script>
+        var canvas = document.getElementById("canvas");
+
+        canvas.width = canvas.scrollWidth;
+        canvas.height = canvas.scrollHeight;
+
+        var ctx = canvas.getContext("2d");
+
+        function UI() {
+            this.score = 0;
+            this.lives = 3;
+            this.hearts = "";
+
+            this.setHearts = function () {
+                for (var i = 0; i < this.lives; i++) {
+                    this.hearts += "❤"
+                }
+            }
+
+            this.drawUI = function () {
+                ui.setHearts();
+                ctx.font = "20px Impact";
+                ctx.fillText("Score : " + this.score, 10, 50);
+                ctx.fillText("Health : " + this.hearts, 10, 90);
+                ctx.fillRect(10, 680, 980, 10);
+                this.hearts = "";
+            }
+        }
+
+        function Player() {
+            this.positionX = 150;
+            this.positionY = 530;
+            this.speed = 10;
+
+            this.drawPlayer = function () {
+                ctx.fillStyle = "brown";
+                ctx.fillRect(this.positionX, this.positionY, 50, 150);
+                ctx.fillStyle = "black";
+            }
+        }
+
+        function Apple() {
+            this.positionX = Math.random() * (970) + (10);;
+            this.positionY = (Math.random() * (100 - 10) + (30)) * -1;
+            this.isDead = false;
+            this.isCaught = false;
+
+            this.drawApple = function () {
+                if (this.positionY < 680) {
+                    ctx.fillStyle = "red";
+                    ctx.beginPath();
+                    ctx.arc(this.positionX, this.positionY, 10, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.fill();
+                    ctx.fillStyle = "black";
+                }
+                else {
+                    this.isDead = true;
+                }
+            }
+        }
+
+        function Apples() {
+            this.Apples = [];
+            this.indexCount = 0;
+            this.currentTime;
+            this.lastSpawn = 0;
+            this.timeToSpawn = 5000;
+
+            this.createApples = function () {
+                this.currentTime = Date.now();
+                if (this.currentTime - this.lastSpawn >= this.timeToSpawn) {
+                    this.Apples[this.indexCount] = new Apple();
+                    this.indexCount++;
+                    this.lastSpawn = Date.now();
+                }
+            }
+
+            this.updateApples = function () {
+                for (var i = 0; i < this.indexCount; i++) {
+                    if (this.Apples[i].isCaught == false) {
+                        this.Apples[i].positionY += 1;
+                        this.Apples[i].drawApple();
+                    }
+                }
+            }
+        }
+
+        var ui = new UI(); ui.setHearts();
+        var player = new Player();
+        var apples = new Apples;
+
+        function difficultyIncrease() {
+            player.speed += 1;
+            apples.timeToSpawn -= 500;
+        }
+
+        var lastKillTime = 0;
+        var isGameOver = false;
+        var scoreToNextLevel = 5;
+        function killLife() {
+            var deadCount = 0;
+            for (var i = 0; i < apples.indexCount; i++) {
+                if (apples.Apples[i].isDead) {
+                    deadCount++;
+                }
+                if (apples.Apples[i].isCaught == false && apples.Apples[i].positionY > player.positionY && apples.Apples[i].positionY < player.positionY + 10 && player.positionX < apples.Apples[i].positionX && player.positionX + 50 > apples.Apples[i].positionX) {
+                    apples.Apples[i].isCaught = true;
+                    ui.score += 1;
+                    if(ui.score == scoreToNextLevel)
+                    {
+                        difficultyIncrease();
+                        scoreToNextLevel += 5;
+                    }
+                }
+            }
+            if (deadCount == 1) {
+                ui.lives = 2;
+            }
+            if (deadCount == 2) {
+                ui.lives = 1;
+            }
+            if (deadCount == 3) {
+                ui.lives = 0;
+            }
+            lastKillTime = Date.now();
+
+            if(ui.lives == 0)
+            {
+                isGameOver = true;
+            }
+        }
+
+        function gameOver() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "30px Impact";
+            ctx.fillText("Game Over", canvas.width / 2 - ctx.measureText("Game Over").width / 2, 200);
+            ctx.fillText("Score", canvas.width / 2 - ctx.measureText("Score").width / 2, 300);
+            ctx.fillText(ui.score, canvas.width / 2 - ctx.measureText(ui.score).width / 2, 350);
+        }
+
+        function gameplay() {
+            if(isGameOver)
+            {
+                requestAnimationFrame(gameOver);
+            }
+            else {
+                requestAnimationFrame(gameplay);
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ui.drawUI();
+
+            apples.createApples();
+            apples.updateApples();
+
+            killLife();
+
+            player.drawPlayer();
+
+        }
+
+
+
+        window.addEventListener("keydown", function (event) {
+            if (event.keyCode == 37 && player.positionX > 0) {
+                player.positionX -= player.speed;
+            }
+            if (event.keyCode == 39 && player.positionX < 950) {
+                player.positionX += player.speed;
+            }
+        }, false);
+
+        gameplay();
+    </script>
+</body>
+
+</html>
